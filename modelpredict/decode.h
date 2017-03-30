@@ -13,6 +13,7 @@ using namespace std;
 vector<int> decode_greedy(float* logits, int width, int length){
 	vector<int> res;
 	//cout<<"width:"<<width<<" length:"<<length<<endl;
+	int t=-1;
 	for(int i=0; i<length; i++)
 	{
 		int max = 0;
@@ -21,8 +22,14 @@ vector<int> decode_greedy(float* logits, int width, int length){
 			if( *(logits+width*i+j) > *(logits+width*i+max) )
 				max = j;
 		}
-		if( res.empty()||*res.end() != max )
-			res.push_back(max);
+		if( max!=t )
+		{
+			t = max;
+			if( res.empty()|| width-1 != max )
+			{
+				res.push_back(max);
+			}
+		}
 		//cout<<i<<endl;
 	}
 	return res;

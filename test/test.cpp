@@ -14,7 +14,7 @@ using namespace cv;
 
 int main(int argc, char *argv[] ){
 	Mat im;
-	TextLineReader<float> r;
+	TextLineReader<float> r("../../bin/");
 	//for(int i=0;i<1000;i++)
 	cout<<r.read(im)<<endl;
 	return 0;

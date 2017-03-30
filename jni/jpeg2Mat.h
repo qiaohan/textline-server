@@ -2,11 +2,12 @@
 #define _JPGMAT_
 
 #include "turbojpeg.h"
-#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
 #include <tuple>
 #include <vector>
 #include <fstream>
 
+using namespace cv;
 /**
 * decode JPEG format to XXX format
 * @param pJpegData

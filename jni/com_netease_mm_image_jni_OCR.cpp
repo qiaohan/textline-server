@@ -1,45 +1,13 @@
 #include "com_netease_mm_image_jni_OCR.h"
-#include "threadPool.h"
-#include "ReqPackage.h"
 #include <unistd.h>
 #include <iostream>
 #include "jpeg2Mat.h"
 #include "TextLineOCR.h"
 #include "cJSON.h"
-
-QThreadPool * ptrCThreadPool;
-
-void* worker(void* ptr)
-{
-	/*
-	char buf[65536];
-	string tags_file="/home/asr/hzwenxiang/lib/lofter_15.txt";
-	std::vector<pair<string,int> > tags;
-	std::ifstream infile(tags_file.c_str());
-	string label;
-	int id=0;
-	while(infile >> label >> id)
-	{
-		tags.push_back(make_pair(label.c_str(),id));
-	}
-	*/
-	ReqPackage * req = new ReqPackage();
-	TextLineReader tlinereader;
-	cout<<"finish init!"<<endl;
-	while (true)
-	{
-		if(ptrCThreadPool->popreq(req))
-		{
-			cout<<"start process..."<<endl;	
-			vector<int> sentence = tlinereader.read(req->src_mat);
-			ResPackage r;
-			r.chars = sentence;
-			ptrCThreadPool->pushres(req->id,r);			
-			//sleep(0.1);
-		}
-	}
-	return 0;
-}
+#include <stack>
+#include "semaphore.h"
+#include<time.h>
+#include<sys/time.h>
 
 string ReturnCheckStr(vector<int> sentence)
 {
@@ -69,18 +37,26 @@ string ReturnCheckStr(vector<int> sentence)
 	return out;
 }
 
-//Mat mm;
-
+stack< TextLineReader<float> * >  tlinereaders;
+sem_t *_ReqSem;
+pthread_mutex_t *_ReqLock;
 /*
  * Class:     com_netease_mm_image_jni_SpamDetect
  * Method:    init
  * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_netease_mm_image_jni_TextDetect_init
+JNIEXPORT jboolean JNICALL Java_com_netease_mm_image_jni_TextDetect2_init
   (JNIEnv * env, jclass, jstring thnum){
+	std::cout << "init start!" << std::endl;
 	const char* pthnum = env->GetStringUTFChars(thnum, NULL);
 	int threadNum = atoi(pthnum);
-	ptrCThreadPool = new QThreadPool(30, 1000 ,1, worker);
+	threadNum = 15;
+	_ReqSem = new sem_t();
+	_ReqLock = new pthread_mutex_t();
+	pthread_mutex_init(_ReqLock,NULL);
+	sem_init(_ReqSem,0,threadNum);
+	for(int i=0; i<threadNum; i++)
+		tlinereaders.push( new TextLineReader<float>() );
 	std::cout << "init succ!" << std::endl;
 	return true;
 }
@@ -90,39 +66,35 @@ JNIEXPORT jboolean JNICALL Java_com_netease_mm_image_jni_TextDetect_init
  * Method:    detect
  * Signature: ([B)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_netease_mm_image_jni_TextDetect_detect
-  (JNIEnv * env, jclass, jbyteArray src){
+JNIEXPORT jstring JNICALL Java_com_netease_mm_image_jni_TextDetect2_detect
+  (JNIEnv * env, jclass, 
+	//jbyteArray src){
+	jstring impath){
+	/*
 	uint8_t * data = (uint8_t*)env->GetByteArrayElements(src, 0);
 	int len = env->GetArrayLength(src);
-	//cout<<src<<'\t'<<len<<endl;
-	/*
-	vector<uchar> mm(len);
-	for(int i=0;i<len;i++)
-		mm[i]=data[i];
-	cout<<"mat"<<endl;
-	InputArray ina(mm);
-	cout<<"inputarray"<<endl;
-	Mat src_mat = imdecode( ina,CV_LOAD_IMAGE_COLOR);
-	void * src1;
-	unsigned long osize;
-	int w,h;
-	Jpeg2DIB_DeCompress(data,len,&src1,&osize,&w,&h);
-	Mat src_mat(h,w,CV_8UC3,src1);
-	//Mat src_mat = mm;
-	*/
 	Mat src_mat = Jpeg2Mat(data,len);
-	ReqPackage * req = new ReqPackage();
-	ResPackage r;
-	req->src_mat = src_mat;
-	req->id = (void*)req;
-	ptrCThreadPool->pushreq(*req);
-	while(!ptrCThreadPool->popres(req->id,&r))
-		sleep(0.1);
-	//sleep(5);
-	cout<<"get response"<<endl;
-	delete req;
-	//free(src1);
-	string res=ReturnCheckStr(r.chars);
+	*/
+
+		struct timeval t1,t2;
+		double timeuse;
+		gettimeofday(&t1,NULL);
+	sem_wait(_ReqSem);
+		gettimeofday(&t2,NULL);
+		timeuse=(t2.tv_sec-t1.tv_sec)+(t2.tv_usec-t1.tv_usec)/1000000;
+		cout<<"get sem:"<<timeuse<<endl;
+	Mat src_mat;// = cv::imread(env->GetStringUTFChars(impath,NULL));
+	pthread_mutex_lock(_ReqLock);
+	TextLineReader<float> * reader = tlinereaders.top();
+	cout<<"pre NUM:"<<tlinereaders.size()<<endl;
+	tlinereaders.pop();
+	pthread_mutex_unlock(_ReqLock);
+		gettimeofday(&t1,NULL);
+		timeuse=(t2.tv_sec-t1.tv_sec)+(t2.tv_usec-t1.tv_usec)/1000000;
+		cout<<"get process lock:"<<-timeuse<<endl;
+
+	vector<int> residx = reader->read(src_mat); 
+	string res=ReturnCheckStr( residx );
 	char *buf;
 	buf = (char*)malloc((res.length() + 20)*sizeof(char));
 	memset(buf, 0, (res.length() + 20)*sizeof(char));
@@ -130,6 +102,19 @@ JNIEXPORT jstring JNICALL Java_com_netease_mm_image_jni_TextDetect_detect
 	jstring outString = env->NewStringUTF(buf);
 	free(buf);
 	buf = NULL;
+		gettimeofday(&t2,NULL);
+		timeuse=(t2.tv_sec-t1.tv_sec)+(t2.tv_usec-t1.tv_usec)/1000000;
+		cout<<"get res:"<<timeuse<<endl;
+
+	pthread_mutex_lock(_ReqLock);
+	tlinereaders.push(reader);
+	cout<<"post NUM:"<<tlinereaders.size()<<endl;
+	pthread_mutex_unlock(_ReqLock);
+		gettimeofday(&t1,NULL);
+		timeuse=(t2.tv_sec-t1.tv_sec)+(t2.tv_usec-t1.tv_usec)/1000000;
+		cout<<"get release lock:"<<-timeuse<<endl;
+
+	sem_post(_ReqSem);
 	return outString;
 }
 

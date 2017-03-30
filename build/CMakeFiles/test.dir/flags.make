@@ -6,5 +6,5 @@ CXX_FLAGS =  -std=c++11 -O2 -D__STDC_CONSTANT_MACROS
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/hzqiaohan/.local/include/cjson -I/home/hzqiaohan/turbojpeg/include -I/home/hzqiaohan/.local/include -I/home/hzqiaohan/.local/include/opencv -I/home/hzqiaohan/.local/include/opencv2 -I/home/hzqiaohan/testcuda/server/modelpredict 
+CXX_INCLUDES = -I/home/hzqiaohan/.local/include/cjson -I/home/hzqiaohan/turbojpeg/include -I/home/hzqiaohan/.local/include -I/home/hzqiaohan/.local/include/opencv -I/home/hzqiaohan/.local/include/opencv2 -I/home/hzqiaohan/testcuda/textline-server/modelpredict 
 

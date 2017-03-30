@@ -12,7 +12,7 @@ extern "C" {
  * Method:    init
  * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_netease_mm_image_jni_TextDetect_init
+JNIEXPORT jboolean JNICALL Java_com_netease_mm_image_jni_TextDetect2_init
   (JNIEnv *, jclass, jstring);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT jboolean JNICALL Java_com_netease_mm_image_jni_TextDetect_init
  * Method:    detect
  * Signature: ([B)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_netease_mm_image_jni_TextDetect_detect
+JNIEXPORT jstring JNICALL Java_com_netease_mm_image_jni_TextDetect2_detect
 	(JNIEnv * env, jclass jc, jstring impath);
 #ifdef __cplusplus
 }

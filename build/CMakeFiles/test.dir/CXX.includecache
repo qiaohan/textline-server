@@ -396,11 +396,11 @@ opencv2/video/tracking.hpp
 opencv2/video/background_segm.hpp
 /home/hzqiaohan/.local/include/opencv2/video/opencv2/video/background_segm.hpp
 
-/home/hzqiaohan/testcuda/server/test/test.cpp
+/home/hzqiaohan/testcuda/textline-server/test/test.cpp
 iostream
 -
 opencv2/opencv.hpp
-/home/hzqiaohan/testcuda/server/test/opencv2/opencv.hpp
+/home/hzqiaohan/testcuda/textline-server/test/opencv2/opencv.hpp
 TextLineOCR.h
-/home/hzqiaohan/testcuda/server/test/TextLineOCR.h
+/home/hzqiaohan/testcuda/textline-server/test/TextLineOCR.h
 

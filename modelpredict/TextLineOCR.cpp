@@ -18,11 +18,11 @@ using namespace cv;
 template<typename T>
 TextLineReader<T>::TextLineReader(string binpath){
 	crnn = new CRNN<T>(binpath,0);
-	ifstream dict_file( (binpath+"all_class_random.txt").c_str() );
+	ifstream dict_file( (binpath+"word_dict.txt").c_str() );
 	string word;
 	while(getline(dict_file, word))
 	{
-		cout<<word<<endl;
+		cout<<word_dict.size()<<':'<<word<<endl;
 		word_dict.push_back(word);
 	}
 }
@@ -49,19 +49,14 @@ string TextLineReader<T>::read(Mat im){
 	std::stringstream buf;
 	buf.str(std::string());
 	buf.clear();
-	buf<<"meiwenzi:";
-	//buf<<feature[2];
-	buf<<";";
-	buf<<"youwenzi:";
-	//buf<<feature[1]+feature[0];
-	buf<<";";
-	buf<<"guanggao:";
-	//buf<<feature[0];
-	buf<<";";
-	buf<<"feiguanggao:";
-	//buf<<feature[1];
+	
+	for(int i=0; i<t.size(); i++){
+		//cout<<t[i]<<',';
+		buf<<word_dict[t[i]];
+	}
+
 	string result_str=buf.str();
-	cJSON_AddItemToObject(root,"result",cJSON_CreateString(result_str.c_str()));
+	cJSON_AddItemToObject(root,"text",cJSON_CreateString(result_str.c_str()));
 	out=cJSON_Print(root);
 	cJSON_Delete(root);
 	return out;

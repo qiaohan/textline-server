@@ -1,3 +1,3 @@
-/home/hzqiaohan/testcuda/server/build/CMakeFiles/rebuild_cache.dir
-/home/hzqiaohan/testcuda/server/build/CMakeFiles/edit_cache.dir
-/home/hzqiaohan/testcuda/server/build/CMakeFiles/test.dir
+/home/hzqiaohan/testcuda/textline-server/build/CMakeFiles/rebuild_cache.dir
+/home/hzqiaohan/testcuda/textline-server/build/CMakeFiles/edit_cache.dir
+/home/hzqiaohan/testcuda/textline-server/build/CMakeFiles/test.dir
