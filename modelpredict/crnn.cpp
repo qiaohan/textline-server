@@ -225,8 +225,10 @@ void CRNN<value_type>::resize(int size, value_type **data)
 template <typename value_type>
 std::vector<int> CRNN<value_type>::predict(const char* imgbuf)
 {
-
-    createOnesImage(imgData_h,IMAGE_H,IMAGE_W);
+	if(imgbuf != NULL)
+		imgData_h = imgbuf;
+	else
+		createOnesImage(imgData_h,IMAGE_H,IMAGE_W);
 
     checkCudaErrors( cudaMemcpy(bottom[0], imgData_h,
                                     3*IMAGE_H*IMAGE_W*sizeof(value_type),
