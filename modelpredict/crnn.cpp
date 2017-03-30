@@ -223,10 +223,10 @@ void CRNN<value_type>::resize(int size, value_type **data)
 
 
 template <typename value_type>
-std::vector<int> CRNN<value_type>::predict(const char* imgbuf)
+std::vector<int> CRNN<value_type>::predict(const char* imgbuf, const int imgw)
 {
 	if(imgbuf != NULL)
-		imgData_h = imgbuf;
+		imgData_h = (value_type*)imgbuf;
 	else
 		createOnesImage(imgData_h,IMAGE_H,IMAGE_W);
 
@@ -309,7 +309,7 @@ std::vector<int> CRNN<value_type>::predict(const char* imgbuf)
 		*/
 	}
 	//fcs[0] -> print_param();
-    std::vector<int> ids = decode_greedy(logits_cpu,LOGITNUM,IMAGE_W/16-1);
+    std::vector<int> ids = decode_greedy(logits_cpu,LOGITNUM,imgw/16-1);
 	return ids;
 }
 #endif

@@ -40,7 +40,36 @@ vector<int> TextLineReader<T>::read(Mat im){
 */
 template<typename T>
 string TextLineReader<T>::read(Mat im){
-	vector<int> t = crnn -> predict(NULL);
+	if(im.type()!=CV_8UC3)
+	{
+		cout<<"image type:"<<im.type()<<endl;
+		return "";
+	}
+	Mat im_resized,tmp;
+	Mat im_float = Mat::ones(IMAGE_H,IMAGE_W,CV_32FC3);
+	int newh = IMAGE_H;
+	int neww = im.cols/im.rows * newh;
+	resize(im,im_resized,Size(neww,newh));
+	im_resized.convertTo(tmp,CV_32FC3);
+	tmp/=255.0;
+	if(neww>IMAGE_W)
+	{
+		neww = IMAGE_W;
+		tmp(Rect(0,0,IMAGE_W,IMAGE_H)).copyTo( im_float );
+	}
+	else
+		tmp.copyTo( im_float(Rect(0,0,neww,IMAGE_H)) );
+
+	char * imgd = (char*)malloc(im.cols*im.rows*im.channels()*sizeof(float));
+	vector<Mat> input_channels;
+	split(im_float,input_channels);
+	memcpy(imgd+0*im.cols*im.rows*sizeof(float),input_channels[0].data,im.cols*im.rows*sizeof(float));
+	memcpy(imgd+1*im.cols*im.rows*sizeof(float),input_channels[1].data,im.cols*im.rows*sizeof(float));
+	memcpy(imgd+2*im.cols*im.rows*sizeof(float),input_channels[2].data,im.cols*im.rows*sizeof(float));
+
+	vector<int> t = crnn -> predict(imgd,neww);
+	free(imgd);
+	
 	string out;
 	cJSON *root,*status,*result;
 	root=cJSON_CreateObject();
