@@ -297,9 +297,13 @@ std::vector<int> CRNN<value_type>::predict(const void* imgbuf, const int imgw)
 		//std::cout<<"t:"<<i<<std::endl;
 	}
 
+	checkCudaErrors( cudaMemcpy(ipcache,ipcache_cpu,
+							final_channel*final_height*final_width*sizeof(value_type),cudaMemcpyHostToDevice) );
+
 	for(int i=0; i<final_width-1; i++)
 	{
-		fcs[0] -> forward_cpu(ipcache_cpu + i*dimpert,logits_cpu+i*LOGITNUM);
+		fcs[0] -> forward(ipcache + i*dimpert,logits+i*LOGITNUM);
+		//fcs[0] -> forward_cpu(ipcache_cpu + i*dimpert,logits_cpu+i*LOGITNUM);
 		/*
 		std::cout<<"fc forward:"<<i<<std::endl;
 		for(int k=0; k<10; k++)
@@ -309,6 +313,10 @@ std::vector<int> CRNN<value_type>::predict(const void* imgbuf, const int imgw)
 		}
 		*/
 	}
+	
+	checkCudaErrors( cudaMemcpy(logits_cpu,logits,
+							(final_width-1)*LOGITNUM*sizeof(value_type),cudaMemcpyDeviceToHost) );
+
 	//fcs[0] -> print_param();
     std::vector<int> ids = decode_greedy(logits_cpu,LOGITNUM,imgw/16-1);
 	return ids;

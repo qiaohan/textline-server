@@ -40,7 +40,7 @@ vector<int> TextLineReader<T>::read(Mat im){
 */
 template<typename T>
 string TextLineReader<T>::read(Mat im){
-	if(im.type()!=CV_8UC3)
+	if(im.type()!=CV_8UC3 || im.cols<im.rows)
 	{
 		cout<<"image type:"<<im.type()<<endl;
 		return "";
