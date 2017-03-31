@@ -308,7 +308,7 @@ void PoolLayer<value_type>::forward( value_type* srcData, value_type* dstData)
 }
 
 template <typename value_type>
-BatchNormLayer<value_type>::BatchNormLayer(std::string scalefname, std::string offsetfname, int& n, int& c, int& h, int& w)
+BatchNormLayer<value_type>::BatchNormLayer(std::string scalefname, std::string offsetfname, int& n, int& c, int& h, int& w, const char* pname)
 {
 	switch (sizeof(value_type))
     {
@@ -324,7 +324,7 @@ BatchNormLayer<value_type>::BatchNormLayer(std::string scalefname, std::string o
     setTensorDesc(dstTensorDesc, tensorFormat, dataType, n, c, h, w);
 	//setTensorDesc(bnScaleBiasMeanVarDesc, tensorFormat, dataType, 1, c, 1, 1);
 	checkCUDNN( cudnnDeriveBNTensorDescriptor(bnScaleBiasMeanVarDesc,srcTensorDesc,mode) );
-	loadparams(scalefname, offsetfname, c);
+	loadparams(scalefname, offsetfname, c, pname);
 }
 
 template <typename value_type>
@@ -344,11 +344,11 @@ void BatchNormLayer<value_type>::destroyHandles(){
 }
 
 template <typename value_type>
-void BatchNormLayer<value_type>::loadparams(std::string scalefname, std::string offsetfname, int channel){
+void BatchNormLayer<value_type>::loadparams(std::string scalefname, std::string offsetfname, int channel, const char* pname){
 	
 	std::string weights_path,bias_path;
-    get_path(weights_path, scalefname.c_str(), "bn");
-    get_path(bias_path, offsetfname.c_str(), "bn");
+    get_path(weights_path, scalefname.c_str(), pname);
+    get_path(bias_path, offsetfname.c_str(), pname);
 	
 	checkCudaErrors( cudaMalloc(&mean, channel) );
 	checkCudaErrors( cudaMalloc(&var, channel) );

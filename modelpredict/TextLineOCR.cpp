@@ -45,13 +45,15 @@ string TextLineReader<T>::read(Mat im){
 		cout<<"image type:"<<im.type()<<endl;
 		return "";
 	}
+	//im = im.t();
 	Mat im_resized,tmp;
-	Mat im_float = Mat::ones(IMAGE_H,IMAGE_W,CV_32FC3);
+	Mat im_float = Mat::zeros(IMAGE_H,IMAGE_W,CV_32FC3);
 	int newh = IMAGE_H;
 	int neww = im.cols/im.rows * newh;
+	//cout<<"old w:"<<im.cols<<"old h:"<<im.rows<<endl;
+	//cout<<"new w:"<<neww<<"new h:"<<newh<<endl;
 	resize(im,im_resized,Size(neww,newh));
 	im_resized.convertTo(tmp,CV_32FC3);
-	tmp/=255.0;
 	if(neww>IMAGE_W)
 	{
 		neww = IMAGE_W;
@@ -60,13 +62,17 @@ string TextLineReader<T>::read(Mat im){
 	else
 		tmp.copyTo( im_float(Rect(0,0,neww,IMAGE_H)) );
 
-	char * imgd = (char*)malloc(im.cols*im.rows*im.channels()*sizeof(float));
+	char * imgd = (char*)malloc(im_float.cols*im_float.rows*im_float.channels()*sizeof(float));
 	vector<Mat> input_channels;
 	split(im_float,input_channels);
-	memcpy(imgd+0*im.cols*im.rows*sizeof(float),input_channels[0].data,im.cols*im.rows*sizeof(float));
-	memcpy(imgd+1*im.cols*im.rows*sizeof(float),input_channels[1].data,im.cols*im.rows*sizeof(float));
-	memcpy(imgd+2*im.cols*im.rows*sizeof(float),input_channels[2].data,im.cols*im.rows*sizeof(float));
+	memcpy(imgd+0*im_float.cols*im_float.rows*sizeof(float),input_channels[0].data,im_float.cols*im_float.rows*sizeof(float));
+	memcpy(imgd+1*im_float.cols*im_float.rows*sizeof(float),input_channels[1].data,im_float.cols*im_float.rows*sizeof(float));
+	memcpy(imgd+2*im_float.cols*im_float.rows*sizeof(float),input_channels[2].data,im_float.cols*im_float.rows*sizeof(float));
 
+	//cout<<input_channels[0].row(0)<<endl;
+	//for(int i=0; i<100; i++)
+	//	cout<<*( (float*)(imgd+i) );
+	cout<<endl;
 	vector<int> t = crnn -> predict(imgd,neww);
 	free(imgd);
 	

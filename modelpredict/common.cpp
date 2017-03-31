@@ -8,7 +8,7 @@
 
 void get_path(std::string& sFilename, const char *fname, const char *pname)
 {
-    sFilename = (std::string("../../bin/") + std::string(fname));
+    sFilename = (std::string(pname) + std::string(fname));
     //sFilename = (std::string("/home/openai/qiaohan/ocr_cudnn/bin/") + std::string(fname));
 }
 
@@ -105,7 +105,7 @@ void printDeviceVector(int start, int end, value_type* vec_d)
     for (int i = start; i < size; i++)
     {
 		//if(i-start==(size-start)/2)
-			std::cout<<std::endl;
+		//	std::cout<<std::endl;
         std::cout << toReal(vec[i]) << " ";
     }
     std::cout << std::endl;

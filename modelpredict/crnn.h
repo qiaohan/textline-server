@@ -55,7 +55,7 @@ public:
    	void bnForward(int n, int c, int h, int w, value_type* srcData, value_type** dstData);
     void activationForward(int n, int c, int h, int w, value_type* srcData, value_type** dstData);
 	*/
-	std::vector<int> predict(const char* imgbuf,const int imgw);
+	std::vector<int> predict(const void* imgbuf,const int imgw);
 private:
 	std::vector<Layer_t<value_type>* > layers_param;
 	std::vector<ConvLayer<value_type>* > convs;

@@ -16,12 +16,15 @@ vector<int> decode_greedy(float* logits, int width, int length){
 	int t=-1;
 	for(int i=0; i<length; i++)
 	{
+		//cout<<"t:"<<i<<endl;
 		int max = 0;
 		for(int j=0; j<width; j++)
 		{
+			//cout<<*(logits+width*i+j)<<',';
 			if( *(logits+width*i+j) > *(logits+width*i+max) )
 				max = j;
 		}
+		//cout<<endl;
 		if( max!=t )
 		{
 			t = max;

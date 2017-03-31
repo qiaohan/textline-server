@@ -75,7 +75,7 @@ CRNN<value_type>::CRNN(std::string binpath, int devnum)
 	const char *ip_bias_bin = "logit_bias.bin";
 	
 
-	char argv[] = "crnn";
+	const char * argv = binpath.c_str();
     Layer_t<value_type>* conv1 = new Layer_t<value_type>(3,64,3,conv1_bin,conv1_bias_bin,argv);
 		layers_param.push_back(conv1);
 	Layer_t<value_type>* conv2 = new Layer_t<value_type>(64,128,3,conv2_bin,conv2_bias_bin,argv);
@@ -145,7 +145,7 @@ CRNN<value_type>::CRNN(std::string binpath, int devnum)
 		top.push_back( data );
 		bottom.push_back( data );
 	//bn5
-	bns.push_back( new BatchNormLayer<value_type>("bn5_scale.bin","bn5_offset.bin",n,c,h,w) );
+	bns.push_back( new BatchNormLayer<value_type>("bn5_scale.bin","bn5_offset.bin",n,c,h,w,argv) );
 		checkCudaErrors( cudaMalloc(&data, n*c*h*w*sizeof(value_type)) );
 		top.push_back( data );
 		bottom.push_back( data );
@@ -155,7 +155,7 @@ CRNN<value_type>::CRNN(std::string binpath, int devnum)
 		top.push_back( data );
 		bottom.push_back( data );
 	//bn6	
-	bns.push_back( new BatchNormLayer<value_type>("bn6_scale.bin","bn6_offset.bin",n,c,h,w) );
+	bns.push_back( new BatchNormLayer<value_type>("bn6_scale.bin","bn6_offset.bin",n,c,h,w,argv) );
 		checkCudaErrors( cudaMalloc(&data, n*c*h*w*sizeof(value_type)) );
 		top.push_back( data );
 		bottom.push_back( data );
@@ -223,7 +223,7 @@ void CRNN<value_type>::resize(int size, value_type **data)
 
 
 template <typename value_type>
-std::vector<int> CRNN<value_type>::predict(const char* imgbuf, const int imgw)
+std::vector<int> CRNN<value_type>::predict(const void* imgbuf, const int imgw)
 {
 	if(imgbuf != NULL)
 		imgData_h = (value_type*)imgbuf;
@@ -237,6 +237,7 @@ std::vector<int> CRNN<value_type>::predict(const char* imgbuf, const int imgw)
 	int poolc = 0;
 	int convc = 0;
 	int bnc = 0;
+	//printDeviceVector(0, 0+512, bottom[cnt]);
 	convs[convc]->forward(bottom[cnt],top[cnt]);cnt++;convc++;
 	pools[poolc]->forward(bottom[cnt],top[cnt]);cnt++;poolc++;
 	

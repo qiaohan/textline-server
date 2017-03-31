@@ -75,13 +75,13 @@ template <typename value_type>
 class BatchNormLayer
 {
 	public:
-		BatchNormLayer(std::string scalefname, std::string offsetfname, int& n, int& c, int& h, int& w);
+		BatchNormLayer(std::string scalefname, std::string offsetfname, int& n, int& c, int& h, int& w, const char * pname);
 		~BatchNormLayer();
 		void forward(value_type* srcData, value_type* dstData);
 	private:
 		void createHandles();
 		void destroyHandles();
-		void loadparams(std::string scalefname, std::string offsetfname, int channel);
+		void loadparams(std::string scalefname, std::string offsetfname, int channel, const char * pname);
 	
 		cudnnTensorDescriptor_t bnScaleBiasMeanVarDesc,dstTensorDesc,srcTensorDesc;
 		cudnnHandle_t cudnnHandle;
